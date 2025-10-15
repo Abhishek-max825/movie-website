@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-
+import os
 from .config import settings
 from .routers.search import router as search_router
 from .routers.stream import router as stream_router
@@ -10,6 +10,29 @@ from .routers.upload import router as upload_router
 from .background import start_cleanup_loop
 
 app = FastAPI(title="Telegram Movie Streamer", version="1.0")
+from fastapi import FastAPI
+from fastapi.responses import HTMLResponse
+
+app = FastAPI()
+
+@app.get("/", response_class=HTMLResponse)
+async def read_root():
+    return """
+    <html>
+        <head>
+            <title>Movie Website Backend</title>
+        </head>
+        <body>
+            <h1>Welcome to the Movie Website Backend</h1>
+        </body>
+    </html>
+    """
+media_root = "temp/hls"
+if not os.path.exists(media_root):
+    os.makedirs(media_root)
+
+# Mount the directory for static files
+app.mount("/media", StaticFiles(directory=media_root), name="media")
 
 app.add_middleware(
     CORSMiddleware,
